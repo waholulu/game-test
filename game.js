@@ -513,7 +513,7 @@ function renderMap() {
     node.innerHTML = `<div class="node-icon">${e.icon}</div><div class="node-label">${e.label}</div>`;
 
     if (i === state.currentFight) {
-      node.addEventListener('click', () => startCombat(i));
+      addTap(node, () => startCombat(i));
     }
     mapPath.appendChild(node);
   });
@@ -604,10 +604,13 @@ function renderHand() {
       <div class="card-desc">${card.description.replace(/\n/g, '<br>')}</div>
     `;
     if (playable) {
-      cardEl.addEventListener('click', () => playCard(i));
+      addTap(cardEl, () => playCard(i));
     }
     handArea.appendChild(cardEl);
   });
+
+  // On mobile, center-scroll the hand
+  requestAnimationFrame(scrollHandToCenter);
 }
 
 function renderReward() {
@@ -624,7 +627,7 @@ function renderReward() {
       <div class="card-type">${card.type === 'attack' ? '攻击' : '技能'}</div>
       <div class="card-desc">${card.description.replace(/\n/g, '<br>')}</div>
     `;
-    cardEl.addEventListener('click', () => pickReward(i));
+    addTap(cardEl, () => pickReward(i));
     container.appendChild(cardEl);
   });
 }
@@ -685,33 +688,88 @@ function showBanner(text) {
   setTimeout(() => banner.remove(), 1200);
 }
 
+// ==================== TOUCH HELPERS ====================
+
+// Use touchend on mobile for snappier response, with fallback to click
+function addTap(el, handler) {
+  let touchMoved = false;
+  let startX = 0;
+  let startY = 0;
+
+  el.addEventListener('touchstart', (e) => {
+    touchMoved = false;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  el.addEventListener('touchmove', (e) => {
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    const dy = Math.abs(e.touches[0].clientY - startY);
+    if (dx > 10 || dy > 10) touchMoved = true;
+  }, { passive: true });
+
+  el.addEventListener('touchend', (e) => {
+    if (!touchMoved) {
+      e.preventDefault();
+      handler(e);
+    }
+  });
+
+  el.addEventListener('click', (e) => {
+    // Only fire click on non-touch devices
+    if (!('ontouchstart' in window)) handler(e);
+  });
+}
+
+// Scroll hand area to center on mobile
+function scrollHandToCenter() {
+  const handArea = document.getElementById('hand-area');
+  if (!handArea) return;
+  const scrollWidth = handArea.scrollWidth;
+  const clientWidth = handArea.clientWidth;
+  if (scrollWidth > clientWidth) {
+    handArea.scrollLeft = (scrollWidth - clientWidth) / 2;
+  }
+}
+
 // ==================== EVENT HANDLERS ====================
 
 function initGame() {
   state = createInitialState();
   render();
 
-  document.getElementById('start-btn').addEventListener('click', () => {
+  addTap(document.getElementById('start-btn'), () => {
     state.screen = 'map';
     render();
   });
 
-  document.getElementById('end-turn-btn').addEventListener('click', () => {
+  addTap(document.getElementById('end-turn-btn'), () => {
     if (!animating) endPlayerTurn();
   });
 
-  document.getElementById('skip-reward-btn').addEventListener('click', skipReward);
+  addTap(document.getElementById('skip-reward-btn'), skipReward);
 
-  document.getElementById('retry-btn').addEventListener('click', () => {
+  addTap(document.getElementById('retry-btn'), () => {
     state = createInitialState();
     state.screen = 'map';
     render();
   });
 
-  document.getElementById('victory-restart-btn').addEventListener('click', () => {
+  addTap(document.getElementById('victory-restart-btn'), () => {
     state = createInitialState();
     state.screen = 'map';
     render();
+  });
+
+  // Prevent pull-to-refresh and bounce scroll on iOS
+  document.body.addEventListener('touchmove', (e) => {
+    if (e.target.closest('#hand-area')) return; // allow card scrolling
+    e.preventDefault();
+  }, { passive: false });
+
+  // Handle orientation change
+  window.addEventListener('resize', () => {
+    if (state.screen === 'combat') render();
   });
 }
 

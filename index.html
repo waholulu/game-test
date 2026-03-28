@@ -2,25 +2,32 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>尖塔杀机 - Slay the Spire Demo</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   background: #0a0a1a;
   color: #e0e0e0;
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
   overflow: hidden;
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #game-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   position: relative;
   background: linear-gradient(180deg, #0d1117 0%, #1a1a2e 50%, #16213e 100%);
+  overflow: hidden;
 }
 
 /* ========== OVERLAYS ========== */
@@ -518,6 +525,359 @@ body {
   20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   80% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* ========== MOBILE: Touch & Active States ========== */
+.btn:active {
+  background: #ff6b6b;
+  color: #0a0a1a;
+  transform: scale(0.95);
+}
+.btn-secondary:active {
+  background: #4ecdc4;
+  color: #0a0a1a;
+}
+.btn-skip:active {
+  background: #666;
+  color: #0a0a1a;
+}
+#end-turn-btn:active:not(:disabled) {
+  background: #e67e22;
+  color: #0a0a1a;
+}
+.card:active:not(.unplayable) {
+  transform: translateY(-15px) scale(1.05);
+  z-index: 10;
+}
+.map-node.available:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+}
+
+/* ========== MOBILE: Portrait Phones (max-width: 600px) ========== */
+@media (max-width: 600px) {
+  /* Title */
+  #title-screen h1 {
+    font-size: 2.4rem;
+  }
+  #title-screen .subtitle {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  .btn {
+    padding: 16px 40px;
+    font-size: 1.1rem;
+    min-height: 48px;
+  }
+
+  /* Map */
+  #map-screen h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .map-path {
+    gap: 10px;
+  }
+  .map-node {
+    width: 85px;
+    height: 85px;
+    border-radius: 12px;
+  }
+  .map-node .node-icon { font-size: 1.8rem; }
+  .map-node .node-label { font-size: 0.75rem; }
+  .map-connector { width: 30px; }
+  .map-node.completed::after {
+    width: 22px;
+    height: 22px;
+    font-size: 0.8rem;
+  }
+
+  /* Combat Screen */
+  #combat-screen {
+    padding: 8px 4px;
+  }
+
+  /* Top Bar */
+  #top-bar {
+    padding: 0 8px;
+    height: auto;
+    gap: 8px;
+  }
+  .entity-info {
+    min-width: 0;
+    flex: 1;
+    gap: 3px;
+  }
+  .entity-name {
+    font-size: 0.85rem;
+  }
+  .hp-bar-container {
+    height: 20px;
+  }
+  .hp-text {
+    font-size: 0.7rem;
+  }
+  .block-display {
+    font-size: 0.75rem;
+  }
+  .status-display {
+    font-size: 0.7rem;
+  }
+
+  /* Battlefield */
+  #battlefield {
+    padding: 0 20px;
+    flex: 1;
+    min-height: 0;
+  }
+  .sprite {
+    font-size: 3.5rem;
+  }
+  .enemy-intent {
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    margin-top: 6px;
+  }
+
+  /* Message Log */
+  #message-log {
+    font-size: 0.8rem;
+    padding: 4px;
+    min-height: 22px;
+  }
+
+  /* Hand Area - horizontal scroll */
+  #hand-area {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    gap: 8px;
+    padding: 6px 12px 10px;
+    min-height: 145px;
+    justify-content: flex-start;
+  }
+  #hand-area::after {
+    content: '';
+    flex-shrink: 0;
+    width: 12px;
+  }
+
+  /* Cards - smaller on mobile */
+  .card {
+    width: 100px;
+    height: 140px;
+    padding: 8px 6px;
+    border-radius: 8px;
+    scroll-snap-align: center;
+    flex-shrink: 0;
+  }
+  .card:hover {
+    transform: none;
+  }
+  .card:active:not(.unplayable) {
+    transform: translateY(-10px) scale(1.05);
+  }
+  .card-cost {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+    top: -6px;
+    left: -6px;
+  }
+  .card-name {
+    font-size: 0.75rem;
+    margin-top: 6px;
+  }
+  .card-type {
+    font-size: 0.6rem;
+    margin-bottom: 3px;
+  }
+  .card-desc {
+    font-size: 0.6rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  /* Bottom Bar */
+  #bottom-bar {
+    padding: 6px 10px;
+    gap: 12px;
+  }
+  .energy-orb {
+    width: 46px;
+    height: 46px;
+    font-size: 1.1rem;
+  }
+  .pile-info {
+    font-size: 0.75rem;
+  }
+  #end-turn-btn {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
+  /* Reward */
+  #reward-screen h2 {
+    font-size: 1.5rem;
+  }
+  #reward-screen .reward-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+  }
+  #reward-cards {
+    gap: 12px;
+  }
+  #reward-cards .card {
+    width: 105px;
+    height: 150px;
+  }
+  #reward-cards .card:hover {
+    transform: none;
+  }
+  #reward-cards .card:active {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+  }
+
+  /* Game Over / Victory */
+  #gameover-screen h2 {
+    font-size: 2rem;
+  }
+  #gameover-screen .death-msg {
+    font-size: 0.95rem;
+    padding: 0 20px;
+    text-align: center;
+  }
+  #victory-screen h2 {
+    font-size: 2rem;
+  }
+  #victory-screen .victory-msg {
+    font-size: 0.95rem;
+  }
+
+  /* Floating text */
+  .float-text {
+    font-size: 1.2rem;
+  }
+  .turn-banner {
+    font-size: 1.4rem;
+  }
+}
+
+/* ========== MOBILE: Very small phones (max-width: 380px) ========== */
+@media (max-width: 380px) {
+  #title-screen h1 {
+    font-size: 2rem;
+  }
+  .map-node {
+    width: 70px;
+    height: 70px;
+  }
+  .map-node .node-icon { font-size: 1.5rem; }
+  .map-connector { width: 20px; }
+
+  .card {
+    width: 88px;
+    height: 125px;
+  }
+  .card-name { font-size: 0.7rem; }
+  .card-desc { font-size: 0.55rem; }
+
+  .sprite { font-size: 3rem; }
+
+  #reward-cards .card {
+    width: 90px;
+    height: 130px;
+  }
+}
+
+/* ========== MOBILE: Landscape phones ========== */
+@media (max-height: 500px) and (orientation: landscape) {
+  #combat-screen {
+    padding: 4px;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  #top-bar {
+    width: 100%;
+    height: auto;
+    padding: 0 8px;
+  }
+  #battlefield {
+    flex: 1;
+    padding: 0 20px;
+    min-height: 80px;
+  }
+  .sprite { font-size: 2.5rem; }
+  #message-log {
+    width: 100%;
+    min-height: 18px;
+    font-size: 0.75rem;
+    padding: 2px;
+  }
+  #hand-area {
+    min-height: 100px;
+    padding: 2px 8px 4px;
+  }
+  .card {
+    width: 80px;
+    height: 105px;
+    padding: 4px;
+  }
+  .card-cost {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    top: -4px;
+    left: -4px;
+  }
+  .card-name { font-size: 0.65rem; margin-top: 4px; }
+  .card-type { display: none; }
+  .card-desc { font-size: 0.55rem; }
+  #bottom-bar {
+    width: 100%;
+    padding: 2px 10px;
+    gap: 10px;
+  }
+  .energy-orb {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+  #end-turn-btn {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    min-height: 36px;
+  }
+  .pile-info { font-size: 0.7rem; }
+  .hp-bar-container { height: 16px; }
+  .hp-text { font-size: 0.6rem; }
+  .entity-name { font-size: 0.75rem; }
+
+  /* Overlays in landscape */
+  #title-screen h1 { font-size: 2rem; }
+  #title-screen .subtitle { margin-bottom: 1rem; }
+  #reward-cards .card {
+    width: 85px;
+    height: 115px;
+  }
+}
+
+/* ========== Tablets (601px - 900px) ========== */
+@media (min-width: 601px) and (max-width: 900px) {
+  #top-bar { padding: 0 20px; }
+  .entity-info { min-width: 200px; }
+  #battlefield { padding: 0 40px; }
+  .sprite { font-size: 4rem; }
+  .card {
+    width: 115px;
+    height: 165px;
+  }
+  #hand-area { gap: 8px; min-height: 175px; }
+  #bottom-bar { gap: 20px; }
 }
 </style>
 </head>
