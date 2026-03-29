@@ -105,7 +105,11 @@ body {
 .map-path {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 20px;
+  flex-wrap: wrap;
+  max-width: 760px;
+  padding: 0 20px;
 }
 .map-node {
   width: 120px;
@@ -167,6 +171,27 @@ body {
   color: #aaa;
 }
 .map-player-info span { color: #ff6b6b; font-weight: bold; }
+.map-stage-info {
+  color: #9ab;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+.map-route-history {
+  margin-top: 1.2rem;
+  max-width: 760px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.route-chip {
+  border: 1px solid #4b5b6f;
+  color: #cdd7e1;
+  background: rgba(35, 40, 55, 0.8);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
 
 /* ========== COMBAT SCREEN ========== */
 #combat-screen {
@@ -520,6 +545,36 @@ body {
   animation: bannerFade 1s ease forwards;
   z-index: 150;
 }
+
+/* Card Detail Modal */
+#card-detail-modal {
+  z-index: 180;
+}
+#card-detail-content {
+  width: min(520px, 92vw);
+  background: linear-gradient(180deg, #171c2a 0%, #111523 100%);
+  border: 2px solid #4ecdc4;
+  border-radius: 12px;
+  padding: 18px 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+#card-detail-title {
+  font-size: 1.2rem;
+  color: #f1c40f;
+  margin-bottom: 0.8rem;
+}
+#card-detail-body {
+  line-height: 1.5;
+  color: #d7dde5;
+  white-space: pre-line;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+#card-detail-hint {
+  color: #8f9aac;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
 @keyframes bannerFade {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
   20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -577,6 +632,7 @@ body {
   }
   .map-path {
     gap: 10px;
+    padding: 0 8px;
   }
   .map-node {
     width: 85px;
@@ -586,6 +642,21 @@ body {
   .map-node .node-icon { font-size: 1.8rem; }
   .map-node .node-label { font-size: 0.75rem; }
   .map-connector { width: 30px; }
+  .map-stage-info {
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+    text-align: center;
+    padding: 0 12px;
+  }
+  .map-route-history {
+    margin-top: 0.8rem;
+    gap: 6px;
+    padding: 0 8px;
+  }
+  .route-chip {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
   .map-node.completed::after {
     width: 22px;
     height: 22px;
@@ -765,6 +836,15 @@ body {
   .turn-banner {
     font-size: 1.4rem;
   }
+  #card-detail-title {
+    font-size: 1.05rem;
+  }
+  #card-detail-body {
+    font-size: 0.85rem;
+  }
+  #card-detail-hint {
+    font-size: 0.7rem;
+  }
 }
 
 /* ========== MOBILE: Very small phones (max-width: 380px) ========== */
@@ -894,7 +974,9 @@ body {
   <!-- Map Screen -->
   <div id="map-screen" class="overlay hidden">
     <h2>— 选择你的行军路线 —</h2>
+    <div class="map-stage-info" id="map-stage-info"></div>
     <div class="map-path" id="map-path"></div>
+    <div class="map-route-history" id="map-route-history"></div>
     <div class="map-player-info">
       ❤️ 生命值: <span id="map-hp"></span>
     </div>
@@ -966,6 +1048,16 @@ body {
       <div class="energy-orb" id="energy-orb">3/3</div>
       <button id="end-turn-btn">结束回合</button>
       <div class="pile-info">弃牌堆: <span id="discard-count">0</span></div>
+    </div>
+  </div>
+
+  <!-- Card Detail Modal -->
+  <div id="card-detail-modal" class="overlay hidden">
+    <div id="card-detail-content">
+      <h3 id="card-detail-title"></h3>
+      <div id="card-detail-body"></div>
+      <div id="card-detail-hint">提示：长按卡牌可查看术语说明，轻点则正常打出/选择。</div>
+      <button class="btn btn-secondary" id="card-detail-close">关闭</button>
     </div>
   </div>
 </div>
