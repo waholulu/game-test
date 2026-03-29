@@ -1,5 +1,5 @@
 // ============================================================
-// 尖塔杀机 - Slay the Spire Demo
+// 重建余烬 - 美国内战后战术卡牌 Demo
 // ============================================================
 
 // ==================== CARD LIBRARY ====================
@@ -148,37 +148,37 @@ const REWARD_POOL = [
 
 const ENEMY_TEMPLATES = [
   {
-    id: 'jaw_worm',
-    name: '🐛 颚虫',
-    sprite: '🐛',
+    id: 'straggler_raider',
+    name: '🧔 流寇散兵',
+    sprite: '🧔',
     maxHp: 42,
     getIntent(turn) {
       const cycle = turn % 3;
-      if (cycle === 0) return { type: 'attack', value: 11, text: '撕咬' };
-      if (cycle === 1) return { type: 'mixed', attackValue: 5, blockValue: 6, text: '噬咬' };
-      return { type: 'attack', value: 7, text: '冲撞' };
+      if (cycle === 0) return { type: 'attack', value: 11, text: '冷枪偷袭' };
+      if (cycle === 1) return { type: 'mixed', attackValue: 5, blockValue: 6, text: '翻越路障' };
+      return { type: 'attack', value: 7, text: '近身抢夺' };
     }
   },
   {
-    id: 'cultist',
-    name: '👹 邪教徒',
-    sprite: '👹',
+    id: 'night_rider',
+    name: '🏇 夜骑游匪',
+    sprite: '🏇',
     maxHp: 50,
     getIntent(turn, enemy) {
-      if (turn === 0) return { type: 'buff', value: 0, text: '仪式' };
-      return { type: 'attack', value: 6 + (enemy.strength || 0), text: '暗袭' };
+      if (turn === 0) return { type: 'buff', value: 0, text: '吹响集结号' };
+      return { type: 'attack', value: 6 + (enemy.strength || 0), text: '马刀突袭' };
     }
   },
   {
-    id: 'slime_boss',
-    name: '👾 史莱姆Boss',
-    sprite: '👾',
+    id: 'warlord_boss',
+    name: '🎖️ 军阀头目',
+    sprite: '🎖️',
     maxHp: 70,
     getIntent(turn) {
       const cycle = turn % 3;
-      if (cycle === 0) return { type: 'attack', value: 16, text: '猛击' };
-      if (cycle === 1) return { type: 'defend', value: 12, text: '硬化' };
-      return { type: 'attack', value: 10, text: '分裂冲击', hits: 2 };
+      if (cycle === 0) return { type: 'attack', value: 16, text: '炮击齐发' };
+      if (cycle === 1) return { type: 'defend', value: 12, text: '沙袋筑垒' };
+      return { type: 'attack', value: 10, text: '步枪齐射', hits: 2 };
     }
   }
 ];
@@ -328,7 +328,7 @@ function startCombat(fightIndex) {
   startPlayerTurn();
   state.screen = 'combat';
   render();
-  showBanner(`第 ${fightIndex + 1} 场战斗 - ${template.name}`);
+  showBanner(`第 ${fightIndex + 1} 场遭遇 - ${template.name}`);
 }
 
 function startPlayerTurn() {
@@ -427,7 +427,7 @@ function checkCombatEnd() {
   if (state.player.hp <= 0) {
     setTimeout(() => {
       state.screen = 'gameover';
-      state.deathMsg = `你在第 ${state.currentFight + 1} 场战斗中被 ${state.currentEnemy.name} 击败`;
+      state.deathMsg = `你在第 ${state.currentFight + 1} 场遭遇中被 ${state.currentEnemy.name} 击倒`;
       render();
     }, 800);
     return true;
@@ -493,9 +493,9 @@ function renderMap() {
   mapPath.innerHTML = '';
 
   const enemies = [
-    { icon: '🐛', label: '颚虫' },
-    { icon: '👹', label: '邪教徒' },
-    { icon: '👾', label: 'Boss' }
+    { icon: '🧔', label: '流寇散兵' },
+    { icon: '🏇', label: '夜骑游匪' },
+    { icon: '🎖️', label: '军阀头目' }
   ];
 
   enemies.forEach((e, i) => {

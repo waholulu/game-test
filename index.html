@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>尖塔杀机 - Slay the Spire Demo</title>
+<title>重建余烬 - 战术卡牌 Demo</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -886,14 +886,14 @@ body {
 <div id="game-container">
   <!-- Title Screen -->
   <div id="title-screen" class="overlay">
-    <h1>尖塔杀机</h1>
-    <p class="subtitle">Slay the Spire Demo</p>
-    <button class="btn" id="start-btn">开始冒险</button>
+    <h1>重建余烬</h1>
+    <p class="subtitle">美国内战结束后的战术卡牌 Demo</p>
+    <button class="btn" id="start-btn">踏入重建之路</button>
   </div>
 
   <!-- Map Screen -->
   <div id="map-screen" class="overlay hidden">
-    <h2>— 选择你的路径 —</h2>
+    <h2>— 选择你的行军路线 —</h2>
     <div class="map-path" id="map-path"></div>
     <div class="map-player-info">
       ❤️ 生命值: <span id="map-hp"></span>
@@ -902,8 +902,8 @@ body {
 
   <!-- Reward Screen -->
   <div id="reward-screen" class="overlay hidden">
-    <h2>⚔️ 战斗胜利!</h2>
-    <p class="reward-subtitle">选择一张卡牌加入你的牌组</p>
+    <h2>⚔️ 遭遇战胜利!</h2>
+    <p class="reward-subtitle">从缴获战术中选择一张卡牌</p>
     <div id="reward-cards"></div>
     <button class="btn btn-skip" id="skip-reward-btn">跳过</button>
   </div>
@@ -917,8 +917,8 @@ body {
 
   <!-- Victory Screen -->
   <div id="victory-screen" class="overlay hidden">
-    <h2>🏆 通关!</h2>
-    <p class="victory-msg">你击败了所有敌人，征服了尖塔！</p>
+    <h2>🏆 战役完成!</h2>
+    <p class="victory-msg">你穿越战后废土，守住了重建时代的希望。</p>
     <button class="btn btn-secondary" id="victory-restart-btn">再来一次</button>
   </div>
 
@@ -926,7 +926,7 @@ body {
   <div id="combat-screen" class="hidden">
     <div id="top-bar">
       <div class="entity-info" id="player-info">
-        <div class="entity-name">⚔️ 战士</div>
+        <div class="entity-name">🪖 联邦老兵</div>
         <div class="hp-bar-container">
           <div class="hp-bar-fill" id="player-hp-fill"></div>
           <div class="hp-bar-block" id="player-block-fill"></div>
@@ -949,7 +949,7 @@ body {
 
     <div id="battlefield">
       <div>
-        <div class="sprite" id="player-sprite">🧙</div>
+        <div class="sprite" id="player-sprite">🪖</div>
       </div>
       <div style="text-align: center;">
         <div class="sprite" id="enemy-sprite"></div>
