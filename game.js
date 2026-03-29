@@ -1,5 +1,5 @@
 // ============================================================
-// 尖塔杀机 - Slay the Spire Demo
+// 重建余烬 - 美国内战后战术卡牌 Demo
 // ============================================================
 
 // ==================== CARD LIBRARY ====================
@@ -144,44 +144,113 @@ const REWARD_POOL = [
   'twin_strike', 'armaments', 'anger', 'body_slam', 'bloodletting'
 ];
 
-// ==================== ENEMY TEMPLATES ====================
+const STATUS_GLOSSARY = {
+  vulnerable: {
+    title: '易伤',
+    description: '处于易伤时，受到的攻击伤害提高 50%。每回合结束时层数减少 1。'
+  },
+  block: {
+    title: '格挡',
+    description: '格挡会优先抵消受到的伤害。若回合结束后未被消耗完，本 Demo 中会在下回合开始时清空。'
+  },
+  strength: {
+    title: '力量',
+    description: '力量会提高攻击伤害。本 Demo 中敌人每有 1 点力量，其攻击额外造成 1 点伤害。'
+  },
+  energy: {
+    title: '能量',
+    description: '打出卡牌需要消耗能量。每回合开始时恢复到上限。'
+  }
+};
 
-const ENEMY_TEMPLATES = [
-  {
-    id: 'jaw_worm',
-    name: '🐛 颚虫',
-    sprite: '🐛',
+const CARD_KEYWORD_HINTS = {
+  bash: ['vulnerable'],
+  defend: ['block'],
+  iron_wave: ['block'],
+  shrug_it_off: ['block'],
+  armaments: ['block'],
+  body_slam: ['block'],
+  bloodletting: ['energy']
+};
+
+const ENCOUNTER_LIBRARY = {
+  straggler_raider: {
+    id: 'straggler_raider',
+    name: '🧔 流寇散兵',
+    sprite: '🧔',
+    mapIcon: '🧔',
+    mapLabel: '流寇散兵',
     maxHp: 42,
     getIntent(turn) {
       const cycle = turn % 3;
-      if (cycle === 0) return { type: 'attack', value: 11, text: '撕咬' };
-      if (cycle === 1) return { type: 'mixed', attackValue: 5, blockValue: 6, text: '噬咬' };
-      return { type: 'attack', value: 7, text: '冲撞' };
+      if (cycle === 0) return { type: 'attack', value: 11, text: '冷枪偷袭' };
+      if (cycle === 1) return { type: 'mixed', attackValue: 5, blockValue: 6, text: '翻越路障' };
+      return { type: 'attack', value: 7, text: '近身抢夺' };
     }
   },
-  {
-    id: 'cultist',
-    name: '👹 邪教徒',
-    sprite: '👹',
+  night_rider: {
+    id: 'night_rider',
+    name: '🏇 夜骑游匪',
+    sprite: '🏇',
+    mapIcon: '🏇',
+    mapLabel: '夜骑游匪',
     maxHp: 50,
     getIntent(turn, enemy) {
-      if (turn === 0) return { type: 'buff', value: 0, text: '仪式' };
-      return { type: 'attack', value: 6 + (enemy.strength || 0), text: '暗袭' };
+      if (turn === 0) return { type: 'buff', value: 0, text: '吹响集结号' };
+      return { type: 'attack', value: 6 + (enemy.strength || 0), text: '马刀突袭' };
     }
   },
-  {
-    id: 'slime_boss',
-    name: '👾 史莱姆Boss',
-    sprite: '👾',
-    maxHp: 70,
+  river_saboteur: {
+    id: 'river_saboteur',
+    name: '🧨 渡口破坏者',
+    sprite: '🧨',
+    mapIcon: '🧨',
+    mapLabel: '渡口破坏者',
+    maxHp: 56,
     getIntent(turn) {
       const cycle = turn % 3;
-      if (cycle === 0) return { type: 'attack', value: 16, text: '猛击' };
-      if (cycle === 1) return { type: 'defend', value: 12, text: '硬化' };
-      return { type: 'attack', value: 10, text: '分裂冲击', hits: 2 };
+      if (cycle === 0) return { type: 'attack', value: 12, text: '火药包投掷' };
+      if (cycle === 1) return { type: 'defend', value: 10, text: '借掩体固守' };
+      return { type: 'mixed', attackValue: 6, blockValue: 6, text: '爆破后撤' };
+    }
+  },
+  warlord_boss: {
+    id: 'warlord_boss',
+    name: '🎖️ 军阀头目',
+    sprite: '🎖️',
+    mapIcon: '🎖️',
+    mapLabel: '军阀头目',
+    maxHp: 74,
+    getIntent(turn) {
+      const cycle = turn % 3;
+      if (cycle === 0) return { type: 'attack', value: 16, text: '炮击齐发' };
+      if (cycle === 1) return { type: 'defend', value: 12, text: '沙袋筑垒' };
+      return { type: 'attack', value: 10, text: '步枪齐射', hits: 2 };
     }
   }
+};
+
+const ROUTE_MAP = [
+  [
+    { id: 'r0_a', encounterId: 'straggler_raider', next: ['r1_a', 'r1_b'] },
+    { id: 'r0_b', encounterId: 'night_rider', next: ['r1_b', 'r1_c'] }
+  ],
+  [
+    { id: 'r1_a', encounterId: 'night_rider', next: ['r2_a'] },
+    { id: 'r1_b', encounterId: 'river_saboteur', next: ['r2_a', 'r2_b'] },
+    { id: 'r1_c', encounterId: 'straggler_raider', next: ['r2_b'] }
+  ],
+  [
+    { id: 'r2_a', encounterId: 'river_saboteur', next: ['r3_boss'] },
+    { id: 'r2_b', encounterId: 'night_rider', next: ['r3_boss'] }
+  ],
+  [
+    { id: 'r3_boss', encounterId: 'warlord_boss', next: [] }
+  ]
 ];
+
+// ==================== ENEMY TEMPLATES ====================
+const ENEMY_TEMPLATES = Object.values(ENCOUNTER_LIBRARY);
 
 // ==================== GAME STATE ====================
 
@@ -195,6 +264,8 @@ function createCard(cardId) {
 
 function createInitialState() {
   const deck = STARTER_DECK.map(id => createCard(id));
+  const firstRow = ROUTE_MAP[0];
+  const initialAvailableNodes = firstRow.map(node => node.id);
   return {
     screen: 'title',
     player: {
@@ -212,6 +283,11 @@ function createInitialState() {
     combatTurn: 0,
     currentFight: 0,
     encounters: ENEMY_TEMPLATES,
+    route: ROUTE_MAP,
+    routeDepth: 0,
+    availableNodes: initialAvailableNodes,
+    completedNodes: [],
+    selectedNodeId: null,
     message: ''
   };
 }
@@ -228,6 +304,25 @@ function shuffleArray(arr) {
 
 function clamp(val, min, max) {
   return Math.max(min, Math.min(max, val));
+}
+
+function getRouteNodeById(nodeId) {
+  for (const row of ROUTE_MAP) {
+    for (const node of row) {
+      if (node.id === nodeId) return node;
+    }
+  }
+  return null;
+}
+
+function getEncounterFromNodeId(nodeId) {
+  const node = getRouteNodeById(nodeId);
+  if (!node) return null;
+  return ENCOUNTER_LIBRARY[node.encounterId] || null;
+}
+
+function ensureArrayUnique(arr) {
+  return [...new Set(arr)];
 }
 
 // ==================== COMBAT MECHANICS ====================
@@ -305,8 +400,12 @@ function discardHand(state) {
 
 // ==================== COMBAT FLOW ====================
 
-function startCombat(fightIndex) {
-  const template = ENEMY_TEMPLATES[fightIndex];
+function startCombat(nodeId) {
+  const node = getRouteNodeById(nodeId);
+  if (!node) return;
+  const template = getEncounterFromNodeId(nodeId);
+  if (!template) return;
+  state.selectedNodeId = nodeId;
   state.currentEnemy = {
     ...template,
     hp: template.maxHp,
@@ -328,7 +427,7 @@ function startCombat(fightIndex) {
   startPlayerTurn();
   state.screen = 'combat';
   render();
-  showBanner(`第 ${fightIndex + 1} 场战斗 - ${template.name}`);
+  showBanner(`第 ${state.routeDepth + 1} 场遭遇 - ${template.name}`);
 }
 
 function startPlayerTurn() {
@@ -411,8 +510,14 @@ function executeEnemyTurn() {
 
 function checkCombatEnd() {
   if (state.currentEnemy.hp <= 0) {
+    const finishedNode = getRouteNodeById(state.selectedNodeId);
+    if (finishedNode) {
+      state.completedNodes = ensureArrayUnique([...state.completedNodes, finishedNode.id]);
+      state.routeDepth += 1;
+      state.availableNodes = ensureArrayUnique(finishedNode.next || []);
+    }
     state.currentFight++;
-    if (state.currentFight >= state.encounters.length) {
+    if (state.routeDepth >= state.route.length) {
       setTimeout(() => {
         state.screen = 'victory';
         render();
@@ -427,7 +532,7 @@ function checkCombatEnd() {
   if (state.player.hp <= 0) {
     setTimeout(() => {
       state.screen = 'gameover';
-      state.deathMsg = `你在第 ${state.currentFight + 1} 场战斗中被 ${state.currentEnemy.name} 击败`;
+      state.deathMsg = `你在第 ${state.currentFight + 1} 场遭遇中被 ${state.currentEnemy.name} 击倒`;
       render();
     }, 800);
     return true;
@@ -490,33 +595,57 @@ function renderTitle() {
 function renderMap() {
   document.getElementById('map-screen').classList.remove('hidden');
   const mapPath = document.getElementById('map-path');
+  const routeHistory = document.getElementById('map-route-history');
   mapPath.innerHTML = '';
+  if (routeHistory) routeHistory.innerHTML = '';
+  const routeHint = document.getElementById('map-stage-info');
 
-  const enemies = [
-    { icon: '🐛', label: '颚虫' },
-    { icon: '👹', label: '邪教徒' },
-    { icon: '👾', label: 'Boss' }
-  ];
+  const currentRow = state.route[state.routeDepth] || [];
+  currentRow.forEach((routeNode, i) => {
+    const encounter = ENCOUNTER_LIBRARY[routeNode.encounterId];
+    if (!encounter) return;
 
-  enemies.forEach((e, i) => {
     if (i > 0) {
       const connector = document.createElement('div');
-      connector.className = 'map-connector' + (i <= state.currentFight ? ' active' : '');
+      const isPast = state.completedNodes.includes(currentRow[i - 1].id);
+      connector.className = 'map-connector' + (isPast ? ' active' : '');
       mapPath.appendChild(connector);
     }
+
     const node = document.createElement('div');
     node.className = 'map-node';
-    if (i < state.currentFight) node.classList.add('completed');
-    else if (i === state.currentFight) node.classList.add('available');
+    const completed = state.completedNodes.includes(routeNode.id);
+    const available = state.availableNodes.includes(routeNode.id);
+
+    if (completed) node.classList.add('completed');
+    else if (available) node.classList.add('available');
     else node.classList.add('locked');
 
-    node.innerHTML = `<div class="node-icon">${e.icon}</div><div class="node-label">${e.label}</div>`;
+    node.innerHTML = `<div class="node-icon">${encounter.mapIcon || encounter.sprite}</div><div class="node-label">${encounter.mapLabel || encounter.name}</div>`;
 
-    if (i === state.currentFight) {
-      addTap(node, () => startCombat(i));
+    if (available) {
+      addTap(node, () => startCombat(routeNode.id));
     }
     mapPath.appendChild(node);
   });
+
+  if (routeHint) {
+    const totalRounds = state.route.length;
+    routeHint.textContent = `当前第 ${state.routeDepth + 1} / ${totalRounds} 轮，可在本轮节点中选择一条路线前进。`;
+  }
+
+  if (routeHistory) {
+    state.completedNodes.forEach((nodeId) => {
+      const node = getRouteNodeById(nodeId);
+      if (!node) return;
+      const encounter = ENCOUNTER_LIBRARY[node.encounterId];
+      if (!encounter) return;
+      const chip = document.createElement('div');
+      chip.className = 'route-chip';
+      chip.textContent = `${encounter.mapIcon || encounter.sprite} ${encounter.mapLabel || encounter.name}`;
+      routeHistory.appendChild(chip);
+    });
+  }
 
   document.getElementById('map-hp').textContent = `${state.player.hp} / ${state.player.maxHp}`;
 }
@@ -603,6 +732,7 @@ function renderHand() {
       <div class="card-type">${card.type === 'attack' ? '攻击' : '技能'}</div>
       <div class="card-desc">${card.description.replace(/\n/g, '<br>')}</div>
     `;
+    setupCardLongPress(cardEl, card);
     if (playable) {
       addTap(cardEl, () => playCard(i));
     }
@@ -627,6 +757,7 @@ function renderReward() {
       <div class="card-type">${card.type === 'attack' ? '攻击' : '技能'}</div>
       <div class="card-desc">${card.description.replace(/\n/g, '<br>')}</div>
     `;
+    setupCardLongPress(cardEl, card);
     addTap(cardEl, () => pickReward(i));
     container.appendChild(cardEl);
   });
@@ -688,6 +819,115 @@ function showBanner(text) {
   setTimeout(() => banner.remove(), 1200);
 }
 
+function getCardKeywordLines(card) {
+  const hints = CARD_KEYWORD_HINTS[card.id] || [];
+  return hints
+    .map((key) => STATUS_GLOSSARY[key])
+    .filter(Boolean)
+    .map((item) => `• ${item.title}: ${item.description}`);
+}
+
+function openCardDetail(card) {
+  const modal = document.getElementById('card-detail-modal');
+  if (!modal) return;
+  const titleEl = document.getElementById('card-detail-title');
+  const bodyEl = document.getElementById('card-detail-body');
+  if (!titleEl || !bodyEl) return;
+
+  const typeText = card.type === 'attack' ? '攻击' : '技能';
+  const detailLines = [
+    `类型：${typeText}`,
+    `消耗：${card.cost} 点能量`,
+    '',
+    `效果：${card.description.replace(/\n/g, ' / ')}`
+  ];
+  const keywordLines = getCardKeywordLines(card);
+  if (keywordLines.length > 0) {
+    detailLines.push('', '关键词说明：', ...keywordLines);
+  }
+
+  titleEl.textContent = `${card.name}（详情）`;
+  bodyEl.textContent = detailLines.join('\n');
+  modal.classList.remove('hidden');
+}
+
+function closeCardDetail() {
+  const modal = document.getElementById('card-detail-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+}
+
+function setupCardLongPress(cardEl, card) {
+  let timer = null;
+  let longPressTriggered = false;
+  let startX = 0;
+  let startY = 0;
+
+  const clearPressTimer = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  };
+
+  const startPressTimer = (clientX, clientY) => {
+    longPressTriggered = false;
+    startX = clientX;
+    startY = clientY;
+    clearPressTimer();
+    timer = setTimeout(() => {
+      longPressTriggered = true;
+      openCardDetail(card);
+    }, 450);
+  };
+
+  cardEl.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    startPressTimer(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  cardEl.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dx = Math.abs(touch.clientX - startX);
+    const dy = Math.abs(touch.clientY - startY);
+    if (dx > 12 || dy > 12) {
+      clearPressTimer();
+    }
+  }, { passive: true });
+
+  cardEl.addEventListener('touchend', (e) => {
+    clearPressTimer();
+    if (longPressTriggered) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  });
+
+  cardEl.addEventListener('touchcancel', clearPressTimer, { passive: true });
+
+  cardEl.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    startPressTimer(e.clientX, e.clientY);
+  });
+
+  cardEl.addEventListener('mousemove', (e) => {
+    const dx = Math.abs(e.clientX - startX);
+    const dy = Math.abs(e.clientY - startY);
+    if (dx > 8 || dy > 8) clearPressTimer();
+  });
+
+  cardEl.addEventListener('mouseup', clearPressTimer);
+  cardEl.addEventListener('mouseleave', clearPressTimer);
+
+  // Desktop fallback: right click to inspect details
+  cardEl.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    openCardDetail(card);
+  });
+}
+
 // ==================== TOUCH HELPERS ====================
 
 // Use touchend on mobile for snappier response, with fallback to click
@@ -709,6 +949,7 @@ function addTap(el, handler) {
   }, { passive: true });
 
   el.addEventListener('touchend', (e) => {
+    if (e.defaultPrevented) return;
     if (!touchMoved) {
       e.preventDefault();
       handler(e);
@@ -760,6 +1001,15 @@ function initGame() {
     state.screen = 'map';
     render();
   });
+
+  const closeDetailBtn = document.getElementById('card-detail-close-btn');
+  if (closeDetailBtn) addTap(closeDetailBtn, closeCardDetail);
+  const detailModal = document.getElementById('card-detail-modal');
+  if (detailModal) {
+    detailModal.addEventListener('click', (e) => {
+      if (e.target === detailModal) closeCardDetail();
+    });
+  }
 
   // Prevent pull-to-refresh and bounce scroll on iOS
   document.body.addEventListener('touchmove', (e) => {
